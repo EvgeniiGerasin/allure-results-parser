@@ -26,7 +26,7 @@ def get_uid_error_tests(raw_data: dict) -> list:
                             for title in story['children']:
                                 if title.get('status') == 'broken' or title.get('status') == 'failed':
                                     ids.append(title['uid'])
-                        else: 
+                        else:
                             if story.get('status') == 'broken' or story.get('status') == 'failed':
                                 ids.append(story['uid'])
                 else:
@@ -37,8 +37,37 @@ def get_uid_error_tests(raw_data: dict) -> list:
                 ids.append(epic['uid'])
     return ids
 
-# print(get_uid_error_tests(read_json_behavior()))
 
+
+
+
+def read_json_test_description(uid: str) -> dict:
+    """Чтение данных из файла с именем test-cases/<uid>.json
+    """
+    with open(PATH + f'/test-cases/{uid}.json', encoding="utf8") as f:
+        raw_data = json.load(f)
+    return raw_data
+
+
+def get_data_tests(uids: list) -> dict:
+    """Получение полей с данными об упавших тестах
+    """
+    result: dict = dict()
+    for uid in uids:
+        data = read_json_test_description(uid)
+        result[data['name']] = {'status': data['status'], 
+                'error': data['statusMessage'], 
+                'descriptionHtml': data['descriptionHtml']
+            }
+    return result
+
+with open('result.txt', 'w', encoding="utf8") as f:
+    f.write(f'Всего ошибок: {len(get_data_tests(get_uid_error_tests(read_json_behavior())).items())}\n\n\n\n')
+    for name, value in get_data_tests(get_uid_error_tests(read_json_behavior())).items():
+        f.write(f'Название: {name}\n')
+        f.write(f'\tСтатус: {value["status"]}\n')
+        f.write(f'\tОшибка: {value["error"]}\n')
+        f.write(f'\tОписание: {value["descriptionHtml"]}\n\n\n\n')
 
 
 # def test_json_result():
@@ -60,7 +89,7 @@ def get_uid_error_tests(raw_data: dict) -> list:
 #                                     print(title['status'])
 #                                     print(title['uid'])
 #                                     result.append(title['uid'])
-#                         else: 
+#                         else:
 #                             if story.get('status') == 'broken' or story.get('status') == 'failed':
 #                                 print(story['name'])
 #                                 print(story['status'])
@@ -78,7 +107,7 @@ def get_uid_error_tests(raw_data: dict) -> list:
 #                 print(epic['status'])
 #                 print(epic['uid'])
 #                 result.append(epic['uid'])
-        
+
 #     print(result)
 
 # test_json_result()
